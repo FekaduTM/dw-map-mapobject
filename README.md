@@ -1,1 +1,1 @@
-# dw-map-mapobject 1..2..3
+# dw-map-mapobject 1..2..3..4
