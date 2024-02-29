@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="empMetadata" format="json">
+      <types:shape format="weave" example="examples/fetch-employees.json"><![CDATA[%dw 2.0
+
+type empMetadata = Array<{|  emp_no: String,   birth_date: String,   first_name: String,   last_name: String,   gender: String,   hire_date: String|}> {"example": "[{\\\"emp_no\\\":\\\" \\\",\\\"birth_date\\\":\\\" \\\",\\\"first_name\\\":\\\" \\\",\\\"last_name\\\":\\\" \\\",\\\"gender\\\":\\\" \\\",\\\"hire_date\\\":\\\" \\\"}]"}
+
+]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#22142ab0-f41e-4c8f-8736-3dffba49c9ab">
+    <types:processor-declaration>
+      <types:output-event>
+        <types:message>
+          <types:payload type="empMetadata"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+</types:mule>

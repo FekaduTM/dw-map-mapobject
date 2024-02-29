@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="bdeafcad-d80d-49f5-ac07-0b17338c6c49" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="19e54918-9d41-4a82-900c-0bf112c60649" >
+		<db:my-sql-connection host="localhost" port="3306" user="root" password="root" database="employees" />
+	</db:config>
+	<flow name="dw-map-mapobjectFlow" doc:id="28df06b1-1f5d-4828-966b-dc26ee832a20" >
+		<ee:transform doc:name="Transform Message" doc:id="ab84a869-2b8f-4ee0-8a48-b21f6c00db44" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+var empList=[
+{
+	"empID":100,
+	"empName":"Chinna",
+	"empStatus": "A"
+},
+{
+	"empID":101,
+	"empName":"Fekadu",
+	"empStatus": "A"
+},
+{
+	"empID":102,
+	"empName":"Mark",
+	"empStatus": "I"
+},
+
+{
+	"empID":103,
+	"empName":"John",
+	"empStatus": "I"
+},
+{
+	"empID":104,
+	"empName":"Stephen",
+	"empStatus": "A"
+}
+]
+---
+
+empList filter($.empStatus=="A" and $.empName=="Fekadu") map((emp,indexOfemp)->{
+		"employeeId":emp.empID,
+	    "employeeName": emp.empName,
+	"employeeSratus":emp.empStatus
+				})
+				
+			
+		
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="dw-map-mapobjectFlow1" doc:id="1b39d51d-e860-4d50-b9d5-ce39a696eee9" >
+		<http:listener doc:name="Listener" doc:id="f946c964-822f-4c3e-9d82-3ecb44de046d" path="/fetchempdata" config-ref="HTTP_Listener_config"/>
+		<db:select doc:name="Fetch-Employees" doc:id="26a2d8d5-c33b-4eca-b764-3ea489e9beb5" config-ref="Database_Config">
+			<db:sql ><![CDATA[SELECT emp_no,birth_date,first_name,last_name,gender,hire_date FROM employees]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Prepare- -Employee Records" doc:id="22142ab0-f41e-4c8f-8736-3dffba49c9ab" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload filter($.gender=="M" and $.last_name=="Facello")map ( payload01 , indexOfPayload01 ) -> {
+	emp_no: payload01.emp_no as String,
+	birth_date: payload01.birth_date as String,
+	first_name: payload01.first_name,
+	last_name: payload01.last_name,
+	gender: payload01.gender,
+	hire_date: payload01.hire_date as String
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
